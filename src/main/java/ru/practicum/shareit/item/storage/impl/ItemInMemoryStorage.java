@@ -6,9 +6,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemStorage;
 import ru.practicum.shareit.user.storage.UserStorage;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -19,14 +17,14 @@ public class ItemInMemoryStorage implements ItemStorage {
 
     private final UserStorage userStorage;
 
-    private List<Item> items = new ArrayList<>();
+    private Map<Long, Item> items = new HashMap<>();
     private long lastId = 0;
 
     @Override
     public Item create(long ownerId, Item item) {
         item.setId(getId());
         item.setOwner(userStorage.getById(ownerId));
-        items.add(item);
+        items.put(item.getId(), item);
         return item;
     }
 
@@ -47,15 +45,12 @@ public class ItemInMemoryStorage implements ItemStorage {
 
     @Override
     public Item getById(long id) {
-        return items.stream()
-                .filter(i -> i.getId() == id)
-                .findFirst()
-                .get();
+        return items.get(id);
     }
 
     @Override
     public List<Item> getAll() {
-        return items;
+        return new ArrayList<>(items.values());
     }
 
     @Override
@@ -83,7 +78,7 @@ public class ItemInMemoryStorage implements ItemStorage {
 
     @Override
     public void deleteById(long id) {
-        items.removeIf(i -> i.getId() == id);
+        items.remove(id);
     }
 
     private long getId() {

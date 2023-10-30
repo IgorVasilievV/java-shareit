@@ -8,13 +8,13 @@ import java.util.*;
 
 @Repository
 public class UserInMemoryStorage implements UserStorage {
-    private List<User> users = new ArrayList<>();
+    private Map<Long, User> users = new HashMap<>();
     private long lastId = 0;
 
     @Override
     public User create(User user) {
         user.setId(getId());
-        users.add(user);
+        users.put(user.getId(), user);
         return user;
     }
 
@@ -32,29 +32,20 @@ public class UserInMemoryStorage implements UserStorage {
 
     @Override
     public User getById(long id) {
-        return users.stream()
-                .filter(u -> u.getId() == id)
-                .findFirst()
-                .get();
+        return users.get(id);
     }
 
     @Override
     public List<User> getAll() {
-        return users;
+        return new ArrayList<>(users.values());
     }
 
     @Override
     public void deleteById(long id) {
-        users.removeIf(u -> u.getId() == id);
+        users.remove(id);
     }
 
     private long getId() {
-// хочется оставить данный код, как пример, на будущее
-        /*long lastId = users.stream()
-                .mapToLong(User::getId)
-                .max()
-                .orElse(0);*/
-
         return ++lastId;
     }
 }
