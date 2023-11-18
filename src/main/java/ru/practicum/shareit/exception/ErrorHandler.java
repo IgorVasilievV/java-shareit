@@ -2,14 +2,12 @@ package ru.practicum.shareit.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.shareit.exception.model.ErrorResponse;
-import ru.practicum.shareit.exception.model.NotFoundException;
-import ru.practicum.shareit.exception.model.ConflictException;
+import ru.practicum.shareit.exception.model.*;
 import ru.practicum.shareit.exception.model.SecurityException;
-import ru.practicum.shareit.exception.model.ValidationException;
 
 import java.util.Arrays;
 
@@ -46,10 +44,24 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorResponse handle(MethodArgumentNotValidException e) {
+        log.info("Exception! Valid error");
+        return new ErrorResponse("Valid error", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorResponse handle(StateException e) {
+        log.info("Exception! Valid error");
+        return new ErrorResponse(e.getMessage(), e.getMessage());
+    }
+
+    /*@ExceptionHandler
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handle(Throwable e) {
         log.info("Exception! Unknown error");
         return new ErrorResponse("Unknown error", Arrays.toString(e.getStackTrace()));
-    }
+    }*/
 
 }

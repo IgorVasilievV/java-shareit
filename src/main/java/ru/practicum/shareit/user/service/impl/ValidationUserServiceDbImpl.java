@@ -2,37 +2,34 @@ package ru.practicum.shareit.user.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.model.ConflictException;
 import ru.practicum.shareit.exception.model.NotFoundException;
 import ru.practicum.shareit.exception.model.ValidationException;
 import ru.practicum.shareit.user.model.dto.UserDto;
 import ru.practicum.shareit.user.service.ValidationUserService;
-import ru.practicum.shareit.user.storage.UserStorage;
+import ru.practicum.shareit.user.storage.UserDbStorage;
 
 import java.util.regex.Pattern;
 
-@Service("ValidationUserServiceImpl")
+@Service("ValidationUserServiceDbImpl")
 @RequiredArgsConstructor
-public class ValidationUserServiceImpl implements ValidationUserService {
-    private final UserStorage userStorage;
+public class ValidationUserServiceDbImpl implements ValidationUserService {
+    private final UserDbStorage userStorage;
 
     @Override
     public void validateBeforeCreate(UserDto userDto) throws ValidationException {
         validateEmailOnNull(userDto);
         validateEmailOnCorrect(userDto);
-        validateEmailOnConflict(-1L, userDto);
     }
 
     @Override
     public void validateBeforeUpdate(Long id, UserDto userDto) throws NotFoundException, ValidationException {
         validateSearch(id);
         validateEmailOnCorrect(userDto);
-        validateEmailOnConflict(id, userDto);
     }
 
     @Override
     public void validateSearch(Long id) throws NotFoundException {
-        if (userStorage.getAll().stream().noneMatch(u -> u.getId().equals(id))) {
+        if (!userStorage.existsById(id)) {
             throw new NotFoundException("User with id = " + id + " not found");
         }
     }
@@ -46,15 +43,6 @@ public class ValidationUserServiceImpl implements ValidationUserService {
     private void validateEmailOnCorrect(UserDto userDto) {
         if (userDto.getEmail() != null && !Pattern.matches("^(\\S+)(@)(\\S+)$", userDto.getEmail())) {
             throw new ValidationException("Incorrect format email");
-        }
-    }
-
-
-    private void validateEmailOnConflict(Long id, UserDto userDto) {
-        if (userStorage.getAll().stream()
-                .filter(u -> !u.getId().equals(id))
-                .anyMatch(u -> u.getEmail().equals(userDto.getEmail()))) {
-            throw new ConflictException("User with email: " + userDto.getEmail() + " already exist");
         }
     }
 }

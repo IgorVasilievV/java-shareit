@@ -3,11 +3,12 @@ package ru.practicum.shareit.item.service;
 import ru.practicum.shareit.item.model.dto.ItemDto;
 
 public interface ValidationItemService {
-    void validateBeforeCreate(long ownerId, ItemDto itemDto);
+    void validateBeforeCreate(Long ownerId, ItemDto itemDto);
 
-    void validateBeforeUpdate(long ownerId, long id, ItemDto itemDto);
+    void validateBeforeUpdate(Long ownerId, Long id, ItemDto itemDto);
 
-    void validateSearch(long id);
+    void validateSearch(Long id);
 
-    void validateSearchByUser(long ownerId);
+    void validateSearchByUser(Long ownerId);
+    void validateComment(Long userId, Long itemId);
 }
