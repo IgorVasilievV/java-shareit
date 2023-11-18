@@ -1,11 +1,9 @@
 package ru.practicum.shareit.item.service.impl;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.model.dto.CommentDtoIn;
 import ru.practicum.shareit.item.model.dto.CommentDtoOut;
 import ru.practicum.shareit.item.model.dto.ItemDto;

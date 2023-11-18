@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.exception.model.*;
 import ru.practicum.shareit.exception.model.SecurityException;
 
-import java.util.Arrays;
-
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {

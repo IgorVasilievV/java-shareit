@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking.storage;
 
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -29,6 +28,7 @@ public interface BookingStorage extends JpaRepository<Booking, Long> {
             "where u.id = ?1 " +
             "order by b.start desc")
     List<Booking> findBookingItemByUser(Long userId);
+
     @Query("select b from Booking as b join fetch b.item as i join fetch i.owner as u " +
             "where u.id = ?1 and " +
             "b.end < ?2 " +
@@ -54,7 +54,9 @@ public interface BookingStorage extends JpaRepository<Booking, Long> {
             "order by b.start desc")
     List<Booking> findBookingItemByUserStatus(Long userId, String status);
 
-    Booking findFirstByItemAndStartBeforeAndStatusOrderByEndDesc(Item item, LocalDateTime dateStart, String Status);
-    Booking findFirstByItemAndStartAfterAndStatusOrderByStart(Item item, LocalDateTime dateStart, String Status);
+    Booking findFirstByItemAndStartBeforeAndStatusOrderByEndDesc(Item item, LocalDateTime dateStart, String status);
+
+    Booking findFirstByItemAndStartAfterAndStatusOrderByStart(Item item, LocalDateTime dateStart, String status);
+
     Booking findFirstByItemIdAndBookerIdAndStatus(Long itemId, Long userId, String status);
 }

@@ -37,19 +37,19 @@ public class BookingValidationServiceImpl implements BookingValidationService {
     }
 
     @Override
-    public void validateBeforeSearchById(Long userId, Long bookingId) throws NotFoundException, ValidationException{
+    public void validateBeforeSearchById(Long userId, Long bookingId) throws NotFoundException, ValidationException {
         validateBookingExist(bookingId);
         validateContainsUser(userId);
         validateUserIsOwnerOrBooker(userId, bookingId);
     }
 
     @Override
-    public void validateBeforeSearchByUserId(Long userId, String state) throws NotFoundException, StateException{
-     validateContainsUser(userId);
-     validateState(state);
+    public void validateBeforeSearchByUserId(Long userId, String state) throws NotFoundException, StateException {
+        validateContainsUser(userId);
+        validateState(state);
     }
 
-    private void validateState(String state) throws StateException{
+    private void validateState(String state) throws StateException {
         try {
             State.valueOf(state);
         } catch (Exception e) {
@@ -57,7 +57,7 @@ public class BookingValidationServiceImpl implements BookingValidationService {
         }
     }
 
-    private void validateUserIsOwnerOrBooker(Long userId, Long bookingId) throws NotFoundException{
+    private void validateUserIsOwnerOrBooker(Long userId, Long bookingId) throws NotFoundException {
         Item item = bookingStorage.findById(bookingId).get().getItem();
         User booker = bookingStorage.findById(bookingId).get().getBooker();
         if (item != null && userId.equals(item.getOwner().getId())) {
@@ -70,7 +70,7 @@ public class BookingValidationServiceImpl implements BookingValidationService {
 
     }
 
-    private void validateStatus(Long bookingId) throws ValidationException{
+    private void validateStatus(Long bookingId) throws ValidationException {
         String status = bookingStorage.findById(bookingId).get().getStatus();
         if (!Status.WAITING.toString().equals(status)) {
             throw new ValidationException("Status already changed");

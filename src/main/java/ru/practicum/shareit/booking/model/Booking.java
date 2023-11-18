@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.booking.enums.Status;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -37,6 +36,6 @@ public class Booking {
     private User booker;
 
     @Column(name = "status_current")
-   // private Status statusCurrent;
+    // private Status statusCurrent;
     private String status;
 }

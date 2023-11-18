@@ -11,9 +11,7 @@ import ru.practicum.shareit.exception.model.ValidationException;
 import ru.practicum.shareit.item.model.dto.ItemDto;
 import ru.practicum.shareit.item.service.ValidationItemService;
 import ru.practicum.shareit.item.storage.ItemDbStorage;
-import ru.practicum.shareit.item.storage.ItemStorage;
 import ru.practicum.shareit.user.storage.UserDbStorage;
-import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.time.LocalDateTime;
 
@@ -81,14 +79,14 @@ public class ValidationItemServiceDbImpl implements ValidationItemService {
     }
 
     @Override
-    public void validateComment(Long userId, Long itemId) throws ValidationException{
+    public void validateComment(Long userId, Long itemId) throws ValidationException {
         validateContainsOwner(userId);
         validateSearch(itemId);
         validateBookingIsFinished(userId, itemId);
 
     }
 
-    private void validateBookingIsFinished(Long userId, Long itemId) throws ValidationException{
+    private void validateBookingIsFinished(Long userId, Long itemId) throws ValidationException {
         Booking booking = bookingStorage.findFirstByItemIdAndBookerIdAndStatus(itemId, userId, Status.APPROVED.toString());
         if (booking == null) {
             throw new ValidationException("User isn't booker");
