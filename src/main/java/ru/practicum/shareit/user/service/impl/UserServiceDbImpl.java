@@ -38,6 +38,8 @@ public class UserServiceDbImpl implements UserService {
         UserDto userDtoFromMapper = UserMapper.toUserDto(user);
         log.info("Created user id = {}", userDtoFromMapper.getId());
         return userDtoFromMapper;
+
+
     }
 
     @Override

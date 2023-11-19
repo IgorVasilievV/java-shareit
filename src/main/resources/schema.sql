@@ -1,15 +1,17 @@
-DROP SCHEMA public CASCADE;
-CREATE SCHEMA public;
+--DROP SCHEMA public CASCADE;
+--CREATE SCHEMA public;
+--
+--GRANT ALL ON SCHEMA public TO shareiter;
+--GRANT ALL ON SCHEMA public TO public;
 
-GRANT ALL ON SCHEMA public TO shareiter;
-GRANT ALL ON SCHEMA public TO public;
+DROP TABLE IF EXISTS comments,bookings,items,requests,users CASCADE;
 
 CREATE TABLE IF NOT EXISTS users (
 id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-email VARCHAR(320),
+email VARCHAR(320) NOT NULL,
 name VARCHAR(100),
 
-UNIQUE(email)
+CONSTRAINT email_uniq UNIQUE (email)
 );
 
 CREATE TABLE IF NOT EXISTS requests (
