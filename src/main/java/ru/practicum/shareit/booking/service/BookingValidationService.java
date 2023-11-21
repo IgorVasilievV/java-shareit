@@ -1,9 +1,9 @@
 package ru.practicum.shareit.booking.service;
 
-import ru.practicum.shareit.booking.model.dto.BookingDto;
+import ru.practicum.shareit.booking.model.dto.BookingDtoIn;
 
 public interface BookingValidationService {
-    void validateBeforeCreate(Long userId, BookingDto bookingDto);
+    void validateBeforeCreate(Long userId, BookingDtoIn bookingDtoIn);
 
     void validateBeforeSetStatus(Long ownerId, Long bookingId);
 

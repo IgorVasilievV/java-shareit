@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.enums.State;
 import ru.practicum.shareit.booking.enums.Status;
-import ru.practicum.shareit.booking.model.dto.BookingDto;
+import ru.practicum.shareit.booking.model.dto.BookingDtoIn;
 import ru.practicum.shareit.booking.service.BookingValidationService;
 import ru.practicum.shareit.booking.storage.BookingStorage;
 import ru.practicum.shareit.exception.model.NotFoundException;
@@ -23,10 +23,10 @@ public class BookingValidationServiceImpl implements BookingValidationService {
     private final BookingStorage bookingStorage;
 
     @Override
-    public void validateBeforeCreate(Long userId, BookingDto bookingDto) throws ValidationException, NotFoundException {
+    public void validateBeforeCreate(Long userId, BookingDtoIn bookingDtoIn) throws ValidationException, NotFoundException {
         validateContainsUser(userId);
-        validateUserIsNotOwnerAndItemExistAndAvailable(userId, bookingDto);
-        validateDate(bookingDto);
+        validateUserIsNotOwnerAndItemExistAndAvailable(userId, bookingDtoIn);
+        validateDate(bookingDtoIn);
     }
 
     @Override
@@ -96,10 +96,10 @@ public class BookingValidationServiceImpl implements BookingValidationService {
         }
     }
 
-    private void validateUserIsNotOwnerAndItemExistAndAvailable(Long userId, BookingDto bookingDto)
+    private void validateUserIsNotOwnerAndItemExistAndAvailable(Long userId, BookingDtoIn bookingDtoIn)
             throws ValidationException, NotFoundException {
-        Item item = itemStorage.findById(bookingDto.getItemId())
-                .orElseThrow(() -> new NotFoundException("Item with id = " + bookingDto.getItemId() + "not found"));
+        Item item = itemStorage.findById(bookingDtoIn.getItemId())
+                .orElseThrow(() -> new NotFoundException("Item with id = " + bookingDtoIn.getItemId() + "not found"));
         if (userId.equals(item.getOwner().getId())) {
             throw new NotFoundException("User can't be owner");
         }
@@ -108,8 +108,8 @@ public class BookingValidationServiceImpl implements BookingValidationService {
         }
     }
 
-    private void validateDate(BookingDto bookingDto) throws ValidationException {
-        if (bookingDto.getStart().isAfter(bookingDto.getEnd()) || bookingDto.getStart().equals(bookingDto.getEnd())) {
+    private void validateDate(BookingDtoIn bookingDtoIn) throws ValidationException {
+        if (bookingDtoIn.getStart().isAfter(bookingDtoIn.getEnd()) || bookingDtoIn.getStart().equals(bookingDtoIn.getEnd())) {
             throw new ValidationException("Incorrect date");
         }
     }

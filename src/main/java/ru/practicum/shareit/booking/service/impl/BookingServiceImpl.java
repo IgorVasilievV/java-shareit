@@ -7,7 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.enums.State;
 import ru.practicum.shareit.booking.enums.Status;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.model.dto.BookingDto;
+import ru.practicum.shareit.booking.model.dto.BookingDtoIn;
+import ru.practicum.shareit.booking.model.dto.BookingDtoOut;
+import ru.practicum.shareit.booking.model.dto.BookingDtoWithoutEntity;
 import ru.practicum.shareit.booking.service.BookingMapper;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.booking.service.BookingValidationService;
@@ -20,6 +22,8 @@ import ru.practicum.shareit.user.storage.UserDbStorage;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -34,11 +38,11 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    public Booking create(Long userId, BookingDto bookingDto) {
-        bookingValidationService.validateBeforeCreate(userId, bookingDto);
-        Item item = itemDbStorage.findById(bookingDto.getItemId()).get();
+    public Booking create(Long userId, BookingDtoIn bookingDtoIn) {
+        bookingValidationService.validateBeforeCreate(userId, bookingDtoIn);
+        Item item = itemDbStorage.findById(bookingDtoIn.getItemId()).get();
         User user = userDbStorage.findById(userId).get();
-        Booking booking = BookingMapper.toBooking(bookingDto, item, user, Status.WAITING.toString());
+        Booking booking = BookingMapper.toBooking(bookingDtoIn, item, user, Status.WAITING.toString());
         return bookingStorage.save(booking);
     }
 
@@ -58,31 +62,62 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Booking findBookingById(Long userId, Long bookingId) {
         bookingValidationService.validateBeforeSearchById(userId, bookingId);
-        return bookingStorage.findById(bookingId).get();
+        Booking booking = bookingStorage.findById(bookingId).get();
+        return booking;//BookingMapper.toBookingDtoOut(booking, itemDbStorage.findById(booking.getItemId()).get(), userDbStorage.findById(booking.getBookerId()).get());
     }
 
     @Override
-    public List<Booking> findBookingByUser(Long ownerId, String state) {
+    public List<BookingDtoOut> findBookingByUser(Long ownerId, String state) {
         bookingValidationService.validateBeforeSearchByUserId(ownerId, state);
         State stateEnum = State.valueOf(state);
+
         switch (stateEnum) {
             case ALL:
-                return bookingStorage.findAllByBookerIdOrderByStartDesc(ownerId);
+                List<BookingDtoWithoutEntity> bookings = bookingStorage.findAllByBookerIdOrderByStartDesc(ownerId);
+                return bookings.stream()
+                        .map(b -> BookingMapper
+                                .toBookingDtoOut(b, itemDbStorage.findById(b.getItemId()).get(), userDbStorage.findById(b.getBookerId()).get()))
+                        .collect(Collectors.toList());
             case PAST:
-                return bookingStorage.findAllByBookerIdAndEndBeforeOrderByStartDesc(
+                bookings = bookingStorage.findAllByBookerIdAndEndBeforeOrderByStartDesc(
                         ownerId, LocalDateTime.now());
+
+                return bookings.stream()
+                        .map(b -> BookingMapper
+                                .toBookingDtoOut(b, itemDbStorage.findById(b.getItemId()).get(), userDbStorage.findById(b.getBookerId()).get()))
+                        .collect(Collectors.toList());
             case FUTURE:
-                return bookingStorage.findAllByBookerIdAndStartAfterOrderByStartDesc(
+                bookings = bookingStorage.findAllByBookerIdAndStartAfterOrderByStartDesc(
                         ownerId, LocalDateTime.now());
+
+                return bookings.stream()
+                        .map(b -> BookingMapper
+                                .toBookingDtoOut(b, itemDbStorage.findById(b.getItemId()).get(), userDbStorage.findById(b.getBookerId()).get()))
+                        .collect(Collectors.toList());
             case CURRENT:
-                return bookingStorage.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
+                bookings = bookingStorage.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
                         ownerId, LocalDateTime.now(), LocalDateTime.now());
+
+                return bookings.stream()
+                        .map(b -> BookingMapper
+                                .toBookingDtoOut(b, itemDbStorage.findById(b.getItemId()).get(), userDbStorage.findById(b.getBookerId()).get()))
+                        .collect(Collectors.toList());
             case WAITING:
-                return bookingStorage.findAllByBookerIdAndStatusOrderByStartDesc(
+                bookings = bookingStorage.findAllByBookerIdAndStatusOrderByStartDesc(
                         ownerId, Status.WAITING.toString());
+
+                return bookings.stream()
+                        .map(b -> BookingMapper
+                                .toBookingDtoOut(b, itemDbStorage.findById(b.getItemId()).get(), userDbStorage.findById(b.getBookerId()).get()))
+                        .collect(Collectors.toList());
             case REJECTED:
-                return bookingStorage.findAllByBookerIdAndStatusOrderByStartDesc(
+                bookings = bookingStorage.findAllByBookerIdAndStatusOrderByStartDesc(
                         ownerId, Status.REJECTED.toString());
+
+                return bookings.stream()
+                        .map(b -> BookingMapper
+                                .toBookingDtoOut(b, itemDbStorage.findById(b.getItemId()).get(), userDbStorage.findById(b.getBookerId()).get()))
+                        .collect(Collectors.toList());
         }
         return Collections.emptyList();
     }
@@ -91,6 +126,7 @@ public class BookingServiceImpl implements BookingService {
     public List<Booking> findBookingAllItemsByUser(Long ownerId, String state) {
         bookingValidationService.validateBeforeSearchByUserId(ownerId, state);
         State stateEnum = State.valueOf(state);
+
         switch (stateEnum) {
             case ALL:
                 return bookingStorage.findBookingItemByUser(ownerId);

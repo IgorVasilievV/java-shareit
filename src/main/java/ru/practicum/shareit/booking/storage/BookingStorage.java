@@ -1,28 +1,38 @@
 package ru.practicum.shareit.booking.storage;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.dto.BookingDtoOut;
+import ru.practicum.shareit.booking.model.dto.BookingDtoWithoutEntity;
 import ru.practicum.shareit.item.model.Item;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface BookingStorage extends JpaRepository<Booking, Long> {
-    List<Booking> findAllByBookerIdOrderByStartDesc(Long id);
 
-    List<Booking> findAllByBookerIdAndStartAfterOrderByStartDesc(
+
+    @EntityGraph(value = "booking-entity-graph-with-item-and-booker")
+    Optional<Booking> findById(Long bookingId);
+
+    List<BookingDtoWithoutEntity> findAllByBookerIdOrderByStartDesc(Long id);
+
+    List<BookingDtoWithoutEntity> findAllByBookerIdAndStartAfterOrderByStartDesc(
             Long id, LocalDateTime dateStart);
 
-    List<Booking> findAllByBookerIdAndEndBeforeOrderByStartDesc(
+    List<BookingDtoWithoutEntity> findAllByBookerIdAndEndBeforeOrderByStartDesc(
             Long id, LocalDateTime dateEnd);
 
-    List<Booking> findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
+    List<BookingDtoWithoutEntity> findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
             Long id, LocalDateTime dateStart, LocalDateTime dateEnd);
 
-    List<Booking> findAllByBookerIdAndStatusOrderByStartDesc(Long id, String status);
+    List<BookingDtoWithoutEntity> findAllByBookerIdAndStatusOrderByStartDesc(Long id, String status);
 
     @Query("select b from Booking as b join fetch b.item as i join fetch i.owner as u " +
             "where u.id = ?1 " +

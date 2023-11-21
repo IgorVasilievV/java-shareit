@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @Builder
-public class BookingDto {
+public class BookingDtoIn {
     @NotNull
     @Future
     private LocalDateTime start;
