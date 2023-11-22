@@ -9,7 +9,6 @@ import ru.practicum.shareit.booking.enums.Status;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.dto.BookingDtoIn;
 import ru.practicum.shareit.booking.model.dto.BookingDtoOut;
-import ru.practicum.shareit.booking.model.dto.BookingDtoWithoutEntity;
 import ru.practicum.shareit.booking.service.BookingMapper;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.booking.service.BookingValidationService;
@@ -22,8 +21,6 @@ import ru.practicum.shareit.user.storage.UserDbStorage;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -38,17 +35,17 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    public Booking create(Long userId, BookingDtoIn bookingDtoIn) {
+    public BookingDtoOut create(Long userId, BookingDtoIn bookingDtoIn) {
         bookingValidationService.validateBeforeCreate(userId, bookingDtoIn);
         Item item = itemDbStorage.findById(bookingDtoIn.getItemId()).get();
         User user = userDbStorage.findById(userId).get();
         Booking booking = BookingMapper.toBooking(bookingDtoIn, item, user, Status.WAITING.toString());
-        return bookingStorage.save(booking);
+        return BookingMapper.toBookingDtoOut(bookingStorage.save(booking));
     }
 
     @Transactional
     @Override
-    public Booking setStatusBooking(Long ownerId, Long bookingId, Boolean approved) {
+    public BookingDtoOut setStatusBooking(Long ownerId, Long bookingId, Boolean approved) {
         bookingValidationService.validateBeforeSetStatus(ownerId, bookingId);
         Booking booking = bookingStorage.findById(bookingId).get();
         if (approved) {
@@ -56,14 +53,13 @@ public class BookingServiceImpl implements BookingService {
         } else {
             booking.setStatus(Status.REJECTED.toString());
         }
-        return bookingStorage.save(booking);
+        return BookingMapper.toBookingDtoOut(bookingStorage.save(booking));
     }
 
     @Override
-    public Booking findBookingById(Long userId, Long bookingId) {
+    public BookingDtoOut findBookingById(Long userId, Long bookingId) {
         bookingValidationService.validateBeforeSearchById(userId, bookingId);
-        Booking booking = bookingStorage.findById(bookingId).get();
-        return booking;//BookingMapper.toBookingDtoOut(booking, itemDbStorage.findById(booking.getItemId()).get(), userDbStorage.findById(booking.getBookerId()).get());
+        return BookingMapper.toBookingDtoOut(bookingStorage.findById(bookingId).get());
     }
 
     @Override
@@ -73,78 +69,50 @@ public class BookingServiceImpl implements BookingService {
 
         switch (stateEnum) {
             case ALL:
-                List<BookingDtoWithoutEntity> bookings = bookingStorage.findAllByBookerIdOrderByStartDesc(ownerId);
-                return bookings.stream()
-                        .map(b -> BookingMapper
-                                .toBookingDtoOut(b, itemDbStorage.findById(b.getItemId()).get(), userDbStorage.findById(b.getBookerId()).get()))
-                        .collect(Collectors.toList());
+                return BookingMapper.bookingDtoOutList(bookingStorage.findAllByBookerIdOrderByStartDesc(ownerId));
             case PAST:
-                bookings = bookingStorage.findAllByBookerIdAndEndBeforeOrderByStartDesc(
-                        ownerId, LocalDateTime.now());
-
-                return bookings.stream()
-                        .map(b -> BookingMapper
-                                .toBookingDtoOut(b, itemDbStorage.findById(b.getItemId()).get(), userDbStorage.findById(b.getBookerId()).get()))
-                        .collect(Collectors.toList());
+                return BookingMapper.bookingDtoOutList(bookingStorage.findAllByBookerIdAndEndBeforeOrderByStartDesc(
+                        ownerId, LocalDateTime.now()));
             case FUTURE:
-                bookings = bookingStorage.findAllByBookerIdAndStartAfterOrderByStartDesc(
-                        ownerId, LocalDateTime.now());
-
-                return bookings.stream()
-                        .map(b -> BookingMapper
-                                .toBookingDtoOut(b, itemDbStorage.findById(b.getItemId()).get(), userDbStorage.findById(b.getBookerId()).get()))
-                        .collect(Collectors.toList());
+                return BookingMapper.bookingDtoOutList(bookingStorage.findAllByBookerIdAndStartAfterOrderByStartDesc(
+                        ownerId, LocalDateTime.now()));
             case CURRENT:
-                bookings = bookingStorage.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
-                        ownerId, LocalDateTime.now(), LocalDateTime.now());
-
-                return bookings.stream()
-                        .map(b -> BookingMapper
-                                .toBookingDtoOut(b, itemDbStorage.findById(b.getItemId()).get(), userDbStorage.findById(b.getBookerId()).get()))
-                        .collect(Collectors.toList());
+                return BookingMapper.bookingDtoOutList(bookingStorage
+                        .findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
+                                ownerId, LocalDateTime.now(), LocalDateTime.now()));
             case WAITING:
-                bookings = bookingStorage.findAllByBookerIdAndStatusOrderByStartDesc(
-                        ownerId, Status.WAITING.toString());
-
-                return bookings.stream()
-                        .map(b -> BookingMapper
-                                .toBookingDtoOut(b, itemDbStorage.findById(b.getItemId()).get(), userDbStorage.findById(b.getBookerId()).get()))
-                        .collect(Collectors.toList());
+                return BookingMapper.bookingDtoOutList(bookingStorage.findAllByBookerIdAndStatusOrderByStartDesc(
+                        ownerId, Status.WAITING.toString()));
             case REJECTED:
-                bookings = bookingStorage.findAllByBookerIdAndStatusOrderByStartDesc(
-                        ownerId, Status.REJECTED.toString());
-
-                return bookings.stream()
-                        .map(b -> BookingMapper
-                                .toBookingDtoOut(b, itemDbStorage.findById(b.getItemId()).get(), userDbStorage.findById(b.getBookerId()).get()))
-                        .collect(Collectors.toList());
+                return BookingMapper.bookingDtoOutList(bookingStorage.findAllByBookerIdAndStatusOrderByStartDesc(
+                        ownerId, Status.REJECTED.toString()));
         }
         return Collections.emptyList();
     }
 
     @Override
-    public List<Booking> findBookingAllItemsByUser(Long ownerId, String state) {
+    public List<BookingDtoOut> findBookingAllItemsByUser(Long ownerId, String state) {
         bookingValidationService.validateBeforeSearchByUserId(ownerId, state);
         State stateEnum = State.valueOf(state);
 
         switch (stateEnum) {
             case ALL:
-                return bookingStorage.findBookingItemByUser(ownerId);
+                return BookingMapper.bookingDtoOutList(bookingStorage.findAllByItem_owner_idOrderByStartDesc(ownerId));
             case PAST:
-                return bookingStorage.findBookingItemByUserPast(
-                        ownerId, LocalDateTime.now());
+                return BookingMapper.bookingDtoOutList(bookingStorage.findAllByItem_owner_idAndEndBeforeOrderByStartDesc(
+                        ownerId, LocalDateTime.now()));
             case FUTURE:
-                return bookingStorage.findBookingItemByUserFuture(
-                        ownerId, LocalDateTime.now());
+                return BookingMapper.bookingDtoOutList(bookingStorage.findAllByItem_owner_idAndStartAfterOrderByStartDesc(
+                        ownerId, LocalDateTime.now()));
             case CURRENT:
-                return bookingStorage.findBookingItemByUserCurrent(
-                        ownerId, LocalDateTime.now(), LocalDateTime.now());
+                return BookingMapper.bookingDtoOutList(bookingStorage.findAllByItem_owner_idAndStartBeforeAndEndAfterOrderByStartDesc(
+                        ownerId, LocalDateTime.now(), LocalDateTime.now()));
             case WAITING:
-                return bookingStorage.findBookingItemByUserStatus(
-                        ownerId, Status.WAITING.toString());
+                return BookingMapper.bookingDtoOutList(bookingStorage.findAllByItem_owner_idAndStatusOrderByStartDesc(
+                        ownerId, Status.WAITING.toString()));
             case REJECTED:
-                return bookingStorage.findBookingItemByUserStatus(
-                        ownerId, Status.REJECTED.toString());
+                return BookingMapper.bookingDtoOutList(bookingStorage.findAllByItem_owner_idAndStatusOrderByStartDesc(
+                        ownerId, Status.REJECTED.toString()));
         }
 
         return Collections.emptyList();

@@ -34,9 +34,7 @@ public class User {
         User user = (User) o;
         if (getId() == null) {
             return false;
-        } else if (!getId().equals(user.getId()))
-            return false;
-        return true;
+        } else return getId().equals(user.getId());
     }
 
     @Override

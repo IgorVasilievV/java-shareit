@@ -104,7 +104,7 @@ public class ItemServiceDbImpl implements ItemService {
         if (comments.isEmpty()) {
             return Collections.emptyList();
         } else {
-            return comments.stream().map(c -> CommentMapper.toCommentDtoOut(c)).collect(Collectors.toList());
+            return comments.stream().map(CommentMapper::toCommentDtoOut).collect(Collectors.toList());
         }
     }
 
@@ -140,7 +140,7 @@ public class ItemServiceDbImpl implements ItemService {
             List<Long> ids = itemStorage.searchByText(text);
             List<Item> items = itemStorage.findByIdIn(ids);
             return items.stream()
-                    .map(i -> ItemMapper.toItemDto(i))
+                    .map(ItemMapper::toItemDto)
                     .collect(Collectors.toList());
         }
     }

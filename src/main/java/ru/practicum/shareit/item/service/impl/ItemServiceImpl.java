@@ -76,7 +76,7 @@ public class ItemServiceImpl implements ItemService {
         validationItemService.validateSearchByUser(renterId);
         log.info("Found items contains text = {} and available", text);
         return itemStorage.getItemsBySearch(text).stream()
-                .map(i -> ItemMapper.toItemDto(i))
+                .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
 

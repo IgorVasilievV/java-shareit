@@ -1,9 +1,3 @@
---DROP SCHEMA public CASCADE;
---CREATE SCHEMA public;
---
---GRANT ALL ON SCHEMA public TO shareiter;
---GRANT ALL ON SCHEMA public TO public;
-
 DROP TABLE IF EXISTS comments,bookings,items,requests,users CASCADE;
 
 CREATE TABLE IF NOT EXISTS users (
@@ -35,16 +29,12 @@ CONSTRAINT fk_items_to_users FOREIGN KEY(owner_id) REFERENCES users(id),
 CONSTRAINT fk_items_to_requests FOREIGN KEY(request_id) REFERENCES requests(id)
 );
 
---DROP TYPE IF EXISTS status;
---CREATE TYPE status AS ENUM ('WAITING', 'APPROVED', 'REJECTED', 'CANCELED');
-
 CREATE TABLE IF NOT EXISTS bookings (
 id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 start_date timestamp,
 end_date timestamp,
 item_id BIGINT,
 booker_id BIGINT,
---status_current status,
 status_current VARCHAR(500),
 
 CONSTRAINT fk_bookings_to_users FOREIGN KEY(booker_id) REFERENCES users(id),

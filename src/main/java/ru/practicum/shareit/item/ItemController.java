@@ -53,7 +53,7 @@ public class ItemController {
     @GetMapping("/search")
     public List<ItemDto> getItemsBySearch(
             @RequestHeader(value = "X-Sharer-User-Id", defaultValue = "-1L") Long renterId,
-            @RequestParam(required = true) String text) {
+            @RequestParam String text) {
         return itemService.getItemsBySearch(renterId, text);
     }
 

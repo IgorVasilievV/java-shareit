@@ -14,6 +14,7 @@ public interface ItemDbStorage extends JpaRepository<Item, Long> {
 
     @EntityGraph(attributePaths = {"owner"})
     Optional<Item> findById(Long itemId);
+
     @Query(" select i.id from Item i " +
             "where i.available = true and (upper(i.name) like upper(concat('%', ?1, '%')) " +
             " or upper(i.description) like upper(concat('%', ?1, '%')))")

@@ -27,4 +27,5 @@ public class BookingDtoOut {
 
     private Item item;
 
+
 }

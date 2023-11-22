@@ -47,9 +47,7 @@ public class Item {
         Item item = (Item) o;
         if (getId() == null) {
             return false;
-        } else if (!getId().equals(item.getId()))
-            return false;
-        return true;
+        } else return getId().equals(item.getId());
     }
 
     @Override

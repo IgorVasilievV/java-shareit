@@ -52,7 +52,6 @@ public class Booking {
     private User booker;
 
     @Column(name = "status_current")
-    // private Status statusCurrent;
     private String status;
 
     @Override

@@ -40,9 +40,7 @@ public class ItemRequest {
         ItemRequest itemRequest = (ItemRequest) o;
         if (getId() == null) {
             return false;
-        } else if (!getId().equals(itemRequest.getId()))
-            return false;
-        return true;
+        } else return getId().equals(itemRequest.getId());
     }
 
     @Override

@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService {
     public List<UserDto> getAll() {
         log.info("Found all users");
         return userStorage.getAll().stream()
-                .map(u -> UserMapper.toUserDto(u))
+                .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
     }
 
