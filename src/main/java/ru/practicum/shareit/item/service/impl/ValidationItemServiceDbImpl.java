@@ -2,20 +2,26 @@ package ru.practicum.shareit.item.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.enums.Status;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.storage.BookingStorage;
 import ru.practicum.shareit.exception.model.NotFoundException;
 import ru.practicum.shareit.exception.model.SecurityException;
 import ru.practicum.shareit.exception.model.ValidationException;
 import ru.practicum.shareit.item.model.dto.ItemDto;
 import ru.practicum.shareit.item.service.ValidationItemService;
-import ru.practicum.shareit.item.storage.ItemStorage;
-import ru.practicum.shareit.user.storage.UserStorage;
+import ru.practicum.shareit.item.storage.ItemDbStorage;
+import ru.practicum.shareit.user.storage.UserDbStorage;
 
-@Service("ValidationItemServiceImpl")
+import java.time.LocalDateTime;
+
+@Service("ValidationItemServiceDbImpl")
 @RequiredArgsConstructor
-public class ValidationItemServiceImpl implements ValidationItemService {
+public class ValidationItemServiceDbImpl implements ValidationItemService {
 
-    private final ItemStorage itemStorage;
-    private final UserStorage userStorage;
+    private final ItemDbStorage itemStorage;
+    private final UserDbStorage userStorage;
+    private final BookingStorage bookingStorage;
 
     @Override
     public void validateBeforeCreate(Long ownerId, ItemDto itemDto) throws NotFoundException, ValidationException {
@@ -35,7 +41,7 @@ public class ValidationItemServiceImpl implements ValidationItemService {
 
     @Override
     public void validateSearch(Long id) throws NotFoundException {
-        if (itemStorage.getAll().stream().noneMatch(i -> i.getId().equals(id))) {
+        if (!itemStorage.existsById(id)) {
             throw new NotFoundException("Item with id = " + id + " not found");
         }
     }
@@ -46,12 +52,8 @@ public class ValidationItemServiceImpl implements ValidationItemService {
         validateContainsOwner(ownerId);
     }
 
-    @Override
-    public void validateComment(Long userId, Long itemId) {
-    }
-
     private void validateContainsOwner(Long ownerId) throws NotFoundException {
-        if (userStorage.getAll().stream().noneMatch(u -> u.getId().equals(ownerId))) {
+        if (!userStorage.existsById(ownerId)) {
             throw new NotFoundException("Unknown user with id = " + ownerId);
         }
     }
@@ -71,8 +73,26 @@ public class ValidationItemServiceImpl implements ValidationItemService {
     }
 
     private void validateSecurity(Long ownerId, Long id) throws SecurityException {
-        if (!itemStorage.getById(id).getOwner().getId().equals(ownerId)) {
+        if (!itemStorage.findById(id).get().getOwner().getId().equals(ownerId)) {
             throw new SecurityException("User don't owner");
+        }
+    }
+
+    @Override
+    public void validateComment(Long userId, Long itemId) throws ValidationException {
+        validateContainsOwner(userId);
+        validateSearch(itemId);
+        validateBookingIsFinished(userId, itemId);
+
+    }
+
+    private void validateBookingIsFinished(Long userId, Long itemId) throws ValidationException {
+        Booking booking = bookingStorage.findFirstByItemIdAndBookerIdAndStatus(itemId, userId, Status.APPROVED.toString());
+        if (booking == null) {
+            throw new ValidationException("User isn't booker");
+        }
+        if (booking.getEnd().isAfter(LocalDateTime.now())) {
+            throw new ValidationException("Rent didn't finish");
         }
     }
 }

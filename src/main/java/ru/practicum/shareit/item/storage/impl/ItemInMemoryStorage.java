@@ -18,10 +18,10 @@ public class ItemInMemoryStorage implements ItemStorage {
     private final UserStorage userStorage;
 
     private Map<Long, Item> items = new HashMap<>();
-    private long lastId = 0;
+    private Long lastId = 0L;
 
     @Override
-    public Item create(long ownerId, Item item) {
+    public Item create(Long ownerId, Item item) {
         item.setId(getId());
         item.setOwner(userStorage.getById(ownerId));
         items.put(item.getId(), item);
@@ -29,7 +29,7 @@ public class ItemInMemoryStorage implements ItemStorage {
     }
 
     @Override
-    public Item update(long id, Item item) {
+    public Item update(Long id, Item item) {
         Item lastItem = getById(id);
         if (item.getName() != null) {
             lastItem.setName(item.getName());
@@ -44,7 +44,7 @@ public class ItemInMemoryStorage implements ItemStorage {
     }
 
     @Override
-    public Item getById(long id) {
+    public Item getById(Long id) {
         return items.get(id);
     }
 
@@ -54,9 +54,9 @@ public class ItemInMemoryStorage implements ItemStorage {
     }
 
     @Override
-    public List<Item> getItemsByUser(long ownerId) {
+    public List<Item> getItemsByUser(Long ownerId) {
         return getAll().stream()
-                .filter(i -> i.getOwner().getId() == ownerId)
+                .filter(i -> i.getOwner().getId().equals(ownerId))
                 .collect(Collectors.toList());
     }
 
@@ -77,7 +77,7 @@ public class ItemInMemoryStorage implements ItemStorage {
     }
 
     @Override
-    public void deleteById(long id) {
+    public void deleteById(Long id) {
         items.remove(id);
     }
 
