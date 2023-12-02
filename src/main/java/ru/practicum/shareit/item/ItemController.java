@@ -46,20 +46,19 @@ public class ItemController {
 
     @GetMapping
     public List<ItemWithBookingDto> getItemsByUser(
-            @RequestHeader(value = "X-Sharer-User-Id", defaultValue = "-1L") Long ownerId) {
-        return itemService.getItemsByUser(ownerId);
+            @RequestHeader(value = "X-Sharer-User-Id", defaultValue = "-1L") Long ownerId,
+            @RequestParam(required = false) Integer from,
+            @RequestParam(required = false) Integer size) {
+        return itemService.getItemsByUser(ownerId, from, size);
     }
 
     @GetMapping("/search")
     public List<ItemDto> getItemsBySearch(
             @RequestHeader(value = "X-Sharer-User-Id", defaultValue = "-1L") Long renterId,
-            @RequestParam String text) {
-        return itemService.getItemsBySearch(renterId, text);
-    }
-
-    @DeleteMapping("/{id}")
-    public void deleteById(@PathVariable Long id) {
-        itemService.deleteById(id);
+            @RequestParam String text,
+            @RequestParam(required = false) Integer from,
+            @RequestParam(required = false) Integer size) {
+        return itemService.getItemsBySearch(renterId, text, from, size);
     }
 
     @PostMapping("/{itemId}/comment")

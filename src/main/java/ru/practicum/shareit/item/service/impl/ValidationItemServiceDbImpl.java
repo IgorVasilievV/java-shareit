@@ -11,6 +11,7 @@ import ru.practicum.shareit.exception.model.ValidationException;
 import ru.practicum.shareit.item.model.dto.ItemDto;
 import ru.practicum.shareit.item.service.ValidationItemService;
 import ru.practicum.shareit.item.storage.ItemDbStorage;
+import ru.practicum.shareit.request.storage.ItemRequestStorage;
 import ru.practicum.shareit.user.storage.UserDbStorage;
 
 import java.time.LocalDateTime;
@@ -22,6 +23,7 @@ public class ValidationItemServiceDbImpl implements ValidationItemService {
     private final ItemDbStorage itemStorage;
     private final UserDbStorage userStorage;
     private final BookingStorage bookingStorage;
+    private final ItemRequestStorage itemRequestStorage;
 
     @Override
     public void validateBeforeCreate(Long ownerId, ItemDto itemDto) throws NotFoundException, ValidationException {
@@ -84,6 +86,13 @@ public class ValidationItemServiceDbImpl implements ValidationItemService {
         validateSearch(itemId);
         validateBookingIsFinished(userId, itemId);
 
+    }
+
+    @Override
+    public void validateItemRequest(Long requestId) {
+        if (!itemRequestStorage.existsById(requestId)) {
+            throw new NotFoundException("Request not found with id = " + requestId);
+        }
     }
 
     private void validateBookingIsFinished(Long userId, Long itemId) throws ValidationException {

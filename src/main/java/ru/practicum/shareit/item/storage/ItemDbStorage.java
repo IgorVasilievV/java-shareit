@@ -1,5 +1,7 @@
 package ru.practicum.shareit.item.storage;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,4 +24,9 @@ public interface ItemDbStorage extends JpaRepository<Item, Long> {
 
     List<Item> findByIdIn(List<Long> ids);
 
+    Page<Item> findByIdIn(List<Long> ids, PageRequest pageRequest);
+
+    List<Item> findAllByRequestId(Long id);
+
+    Page<Item> getItemsByOwnerId(Long ownerId, PageRequest pageRequest);
 }

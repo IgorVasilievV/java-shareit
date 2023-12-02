@@ -63,7 +63,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemWithBookingDto> getItemsByUser(Long ownerId) {
+    public List<ItemWithBookingDto> getItemsByUser(Long ownerId, Integer from, Integer size) {
         validationItemService.validateSearchByUser(ownerId);
         log.info("Found all items by userId = {}", ownerId);
         return itemStorage.getItemsByUser(ownerId).stream()
@@ -72,19 +72,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getItemsBySearch(Long renterId, String text) {
+    public List<ItemDto> getItemsBySearch(Long renterId, String text, Integer from, Integer size) {
         validationItemService.validateSearchByUser(renterId);
         log.info("Found items contains text = {} and available", text);
         return itemStorage.getItemsBySearch(text).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public void deleteById(Long id) {
-        validationItemService.validateSearch(id);
-        itemStorage.deleteById(id);
-        log.info("Deleted item id = {}", id);
     }
 
     @Override

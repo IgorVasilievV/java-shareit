@@ -3,6 +3,9 @@ package ru.practicum.shareit.item.service.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.enums.Status;
@@ -17,6 +20,8 @@ import ru.practicum.shareit.item.model.dto.ItemDto;
 import ru.practicum.shareit.item.model.dto.ItemWithBookingDto;
 import ru.practicum.shareit.item.service.*;
 import ru.practicum.shareit.item.storage.ItemDbStorage;
+import ru.practicum.shareit.request.service.ValidationItemRequestService;
+import ru.practicum.shareit.request.storage.ItemRequestStorage;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserDbStorage;
 
@@ -34,26 +39,37 @@ public class ItemServiceDbImpl implements ItemService {
     private final UserDbStorage userStorage;
     private final BookingStorage bookingStorage;
     private final CommentStorage commentStorage;
+    private final ItemRequestStorage itemRequestStorage;
     private final ValidationItemService validationItemService;
+    private final ValidationItemRequestService validationItemRequestService;
 
     @Autowired
     public ItemServiceDbImpl(ItemDbStorage itemStorage,
                              UserDbStorage userDbStorage,
                              BookingStorage bookingStorage,
-                             CommentStorage commentStorage, @Qualifier("ValidationItemServiceDbImpl") ValidationItemService validationItemService) {
+                             CommentStorage commentStorage,
+                             ItemRequestStorage itemRequestStorage,
+                             @Qualifier("ValidationItemServiceDbImpl") ValidationItemService validationItemService, ValidationItemRequestService validationItemRequestService) {
         this.itemStorage = itemStorage;
         this.userStorage = userDbStorage;
         this.bookingStorage = bookingStorage;
         this.commentStorage = commentStorage;
+        this.itemRequestStorage = itemRequestStorage;
         this.validationItemService = validationItemService;
+        this.validationItemRequestService = validationItemRequestService;
     }
 
     @Override
     @Transactional
     public ItemDto create(Long ownerId, ItemDto itemDto) {
         validationItemService.validateBeforeCreate(ownerId, itemDto);
+
         Item itemFromMapper = ItemMapper.toItem(itemDto);
         itemFromMapper.setOwner(userStorage.findById(ownerId).get());
+        if (itemDto.getRequestId() != null) {
+            validationItemService.validateItemRequest(itemDto.getRequestId());
+            itemFromMapper.setRequest(itemRequestStorage.findById(itemDto.getRequestId()).get());
+        }
         Item item = itemStorage.save(itemFromMapper);
         ItemDto itemDtoFromMapper = ItemMapper.toItemDto(item);
         log.info("Created item id = {}", itemDtoFromMapper.getId());
@@ -109,15 +125,24 @@ public class ItemServiceDbImpl implements ItemService {
     }
 
     @Override
-    public List<ItemWithBookingDto> getItemsByUser(Long ownerId) {
+    public List<ItemWithBookingDto> getItemsByUser(Long ownerId, Integer from, Integer size) {
         validationItemService.validateSearchByUser(ownerId);
-        List<Item> itemsByOwner = itemStorage.getItemsByOwnerIdOrderById(ownerId);
-
         log.info("Found all items by userId = {}", ownerId);
-        return itemStorage.getItemsByOwnerIdOrderById(ownerId).stream()
-                .map(i -> ItemMapper.toItemWithBookingDto(i, getLastBooking(i), getNextBooking(i),
-                        getComments(i.getId())))
-                .collect(Collectors.toList());
+        if (from == null || size == null) {
+            return itemStorage.getItemsByOwnerIdOrderById(ownerId).stream()
+                    .map(i -> ItemMapper.toItemWithBookingDto(i, getLastBooking(i), getNextBooking(i),
+                            getComments(i.getId())))
+                    .collect(Collectors.toList());
+        } else {
+            validationItemRequestService.validatePagination(from, size);
+            Sort sort = Sort.by(("id")).ascending();
+            PageRequest pageRequest = PageRequest.of(from / size, size, sort);
+            Page<Item> itemsPage = itemStorage.getItemsByOwnerId(ownerId, pageRequest);
+            return itemsPage.stream()
+                    .map(i -> ItemMapper.toItemWithBookingDto(i, getLastBooking(i), getNextBooking(i),
+                            getComments(i.getId())))
+                    .collect(Collectors.toList());
+        }
     }
 
     private BookingForItemDto getLastBooking(Item item) {
@@ -131,26 +156,29 @@ public class ItemServiceDbImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getItemsBySearch(Long renterId, String text) {
+    public List<ItemDto> getItemsBySearch(Long renterId, String text, Integer from, Integer size) {
         if (text.isBlank()) {
             return Collections.emptyList();
         } else {
             validationItemService.validateSearchByUser(renterId);
             log.info("Found items contains text = {} and available", text);
-            List<Long> ids = itemStorage.searchByText(text);
-            List<Item> items = itemStorage.findByIdIn(ids);
-            return items.stream()
-                    .map(ItemMapper::toItemDto)
-                    .collect(Collectors.toList());
+            if (from == null || size == null) {
+                List<Long> ids = itemStorage.searchByText(text);
+                List<Item> items = itemStorage.findByIdIn(ids);
+                return items.stream()
+                        .map(ItemMapper::toItemDto)
+                        .collect(Collectors.toList());
+            } else {
+                validationItemRequestService.validatePagination(from, size);
+                Sort sort = Sort.by(("id")).ascending();
+                PageRequest pageRequest = PageRequest.of(from / size, size, sort);
+                List<Long> ids = itemStorage.searchByText(text);
+                Page<Item> items = itemStorage.findByIdIn(ids, pageRequest);
+                return items.stream()
+                        .map(ItemMapper::toItemDto)
+                        .collect(Collectors.toList());
+            }
         }
-    }
-
-    @Override
-    @Transactional
-    public void deleteById(Long id) {
-        validationItemService.validateSearch(id);
-        itemStorage.deleteById(id);
-        log.info("Deleted item id = {}", id);
     }
 
     @Override

@@ -12,4 +12,6 @@ public interface ValidationItemService {
     void validateSearchByUser(Long ownerId);
 
     void validateComment(Long userId, Long itemId);
+
+    void validateItemRequest(Long requestId);
 }

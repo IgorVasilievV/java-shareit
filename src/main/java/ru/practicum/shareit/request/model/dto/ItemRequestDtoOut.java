@@ -2,18 +2,19 @@ package ru.practicum.shareit.request.model.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.item.model.dto.ItemForRequestDto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * TODO Sprint add-item-requests.
  */
 @Data
 @Builder
-public class ItemRequestDto {
-    private long id;
+public class ItemRequestDtoOut {
+    private Long id;
     private String description;
-    private User requester;
+    private List<ItemForRequestDto> items;
     private LocalDateTime created;
 }

@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.exception.model.*;
 import ru.practicum.shareit.exception.model.SecurityException;
 
-import java.util.Arrays;
-
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
@@ -56,12 +54,4 @@ public class ErrorHandler {
         log.info("Exception! Valid error");
         return new ErrorResponse(e.getMessage(), e.getMessage());
     }
-
-    @ExceptionHandler
-    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handle(Throwable e) {
-        log.info("Exception! Unknown error");
-        return new ErrorResponse("Unknown error", Arrays.toString(e.getStackTrace()));
-    }
-
 }

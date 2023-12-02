@@ -75,4 +75,9 @@ public class ValidationItemServiceImpl implements ValidationItemService {
             throw new SecurityException("User don't owner");
         }
     }
+
+    @Override
+    public void validateItemRequest(Long requestId) {
+
+    }
 }
