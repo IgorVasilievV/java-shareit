@@ -38,7 +38,7 @@ class ItemRequestControllerTest {
                 .description("description")
                 .build();
         ItemRequestDtoOut itemRequestDtoOut = ItemRequestDtoOut.builder().build();
-        when(itemRequestService.create(1L,  itemRequestDtoInToCreate))
+        when(itemRequestService.create(1L, itemRequestDtoInToCreate))
                 .thenReturn(itemRequestDtoOut);
 
         String result = mockMvc.perform(post("/requests")
@@ -73,7 +73,7 @@ class ItemRequestControllerTest {
     @Test
     void findItemRequestById() {
         ItemRequestDtoOut itemRequestDtoOut = ItemRequestDtoOut.builder().build();
-        when(itemRequestService.findItemRequestById(1L,  1L))
+        when(itemRequestService.findItemRequestById(1L, 1L))
                 .thenReturn(itemRequestDtoOut);
 
         String result = mockMvc.perform(get("/requests/{requestId}", 1L)
