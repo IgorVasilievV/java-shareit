@@ -49,7 +49,8 @@ public class ItemServiceDbImpl implements ItemService {
                              BookingStorage bookingStorage,
                              CommentStorage commentStorage,
                              ItemRequestStorage itemRequestStorage,
-                             @Qualifier("ValidationItemServiceDbImpl") ValidationItemService validationItemService, ValidationItemRequestService validationItemRequestService) {
+                             @Qualifier("ValidationItemServiceDbImpl") ValidationItemService validationItemService,
+                             ValidationItemRequestService validationItemRequestService) {
         this.itemStorage = itemStorage;
         this.userStorage = userDbStorage;
         this.bookingStorage = bookingStorage;

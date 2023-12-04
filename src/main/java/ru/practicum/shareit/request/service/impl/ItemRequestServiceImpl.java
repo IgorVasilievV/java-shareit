@@ -42,7 +42,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         ItemRequest itemRequestWithId = itemRequestStorage.save(itemRequest);
         List<ItemForRequestDto> items = ItemMapper.toListItemForRequestDto(itemDbStorage
                 .findAllByRequestId(itemRequestWithId.getId()));
-        return ItemRequestMapper.toItemRequestDtoOut(itemRequestStorage.save(itemRequest), items);
+        return ItemRequestMapper.toItemRequestDtoOut(itemRequestWithId, items);
     }
 
     @Override
