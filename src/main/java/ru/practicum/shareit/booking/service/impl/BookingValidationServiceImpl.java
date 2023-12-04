@@ -67,7 +67,6 @@ public class BookingValidationServiceImpl implements BookingValidationService {
             return;
         }
         throw new NotFoundException("User isn't booker");
-
     }
 
     private void validateStatus(Long bookingId) throws ValidationException {
