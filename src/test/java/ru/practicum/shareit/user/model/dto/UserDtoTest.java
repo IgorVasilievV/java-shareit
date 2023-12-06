@@ -16,7 +16,7 @@ class UserDtoTest {
 
     @Test
     @SneakyThrows
-    void testSerialization(){
+    void testSerialization() {
         UserDto userDto = new UserDto(1L, "name", "mail@email.ru");
         String expectedJson = "{\"id\":1,\"name\":\"name\",\"email\":\"mail@email.ru\"}";
 

@@ -19,7 +19,7 @@ class ItemDbStorageTest {
     ItemDbStorage itemStorage;
 
     @BeforeEach
-    void addItems(){
+    void addItems() {
         Item item = Item.builder()
                 .available(true)
                 .name("text").build();
