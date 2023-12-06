@@ -28,13 +28,6 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(value = HttpStatus.CONFLICT)
-    public ErrorResponse handle(ConflictException e) {
-        log.info("Exception! Conflict data");
-        return new ErrorResponse("Data called conflict", e.getMessage());
-    }
-
-    @ExceptionHandler
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public ErrorResponse handle(SecurityException e) {
         log.info("Exception! Access error");
