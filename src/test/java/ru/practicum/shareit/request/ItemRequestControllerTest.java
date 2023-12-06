@@ -8,12 +8,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.exception.model.ValidationException;
 import ru.practicum.shareit.request.model.dto.ItemRequestDtoIn;
 import ru.practicum.shareit.request.model.dto.ItemRequestDtoOut;
 import ru.practicum.shareit.request.service.ItemRequestService;
 
 import java.util.Collections;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -33,7 +37,7 @@ class ItemRequestControllerTest {
 
     @SneakyThrows
     @Test
-    void create() {
+    void create_shouldReturnStatusIsOk() {
         ItemRequestDtoIn itemRequestDtoInToCreate = ItemRequestDtoIn.builder()
                 .description("description")
                 .build();
@@ -55,7 +59,26 @@ class ItemRequestControllerTest {
 
     @SneakyThrows
     @Test
-    void findItemRequestByOwner() {
+    void create_shouldReturnStatusIsBadRequest() {
+        ItemRequestDtoIn itemRequestDtoInToCreate = ItemRequestDtoIn.builder()
+                .description("description")
+                .build();
+        when(itemRequestService.create(1L, itemRequestDtoInToCreate))
+                .thenThrow(ValidationException.class);
+
+        mockMvc.perform(post("/requests")
+                        .header("X-Sharer-User-Id", 1L)
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(itemRequestDtoInToCreate)))
+                .andExpect(status().isBadRequest());
+
+        verify(itemRequestService).create(anyLong(), any(ItemRequestDtoIn.class));
+
+    }
+
+    @SneakyThrows
+    @Test
+    void findItemRequestByOwner_shouldReturnStatusIsOk() {
         when(itemRequestService.findItemRequestByOwner(1L))
                 .thenReturn(Collections.EMPTY_LIST);
 
@@ -71,7 +94,7 @@ class ItemRequestControllerTest {
 
     @SneakyThrows
     @Test
-    void findItemRequestById() {
+    void findItemRequestById_shouldReturnStatusIsOk() {
         ItemRequestDtoOut itemRequestDtoOut = ItemRequestDtoOut.builder().build();
         when(itemRequestService.findItemRequestById(1L, 1L))
                 .thenReturn(itemRequestDtoOut);
@@ -88,7 +111,7 @@ class ItemRequestControllerTest {
 
     @SneakyThrows
     @Test
-    void findAllItemRequest() {
+    void findAllItemRequest_shouldReturnStatusIsOk() {
         when(itemRequestService.findAllItemRequest(1L, 0, 2))
                 .thenReturn(Collections.EMPTY_LIST);
 

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.exception.model.NotFoundException;
 import ru.practicum.shareit.user.model.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -38,7 +39,7 @@ class UserControllerTest {
 
     @SneakyThrows
     @Test
-    void getById() {
+    void getById_shouldReturnStatusIsOk() {
         when(userService.getById(Mockito.anyLong())).thenReturn(new UserDto());
         mockMvc.perform(get("/users/{id}", 1L))
                 .andExpect(status().isOk());
@@ -46,9 +47,20 @@ class UserControllerTest {
         Mockito.verify(userService).getById(Mockito.anyLong());
     }
 
+    @Test
+    @SneakyThrows
+    void getById_shouldReturnStatusIsNotFound() {
+        when(userService.getById(Mockito.anyLong())).thenThrow(NotFoundException.class);
+
+        mockMvc.perform(get("/users/{id}", 1L))
+                .andExpect(status().isNotFound());
+
+        Mockito.verify(userService).getById(Mockito.anyLong());
+    }
+
     @SneakyThrows
     @Test
-    void create() {
+    void create_shouldReturnStatusIsOk() {
         UserDto userDtoToCreate = new UserDto();
         when(userService.create(userDtoToCreate)).thenReturn(userDtoToCreate);
 
@@ -65,7 +77,7 @@ class UserControllerTest {
 
     @SneakyThrows
     @Test
-    void update() {
+    void update_shouldReturnStatusIsOk() {
         UserDto userDtoToUpdate = new UserDto();
         userDtoToUpdate.setId(1L);
         when(userService.update(1L, userDtoToUpdate)).thenReturn(userDtoToUpdate);
@@ -83,7 +95,7 @@ class UserControllerTest {
 
     @SneakyThrows
     @Test
-    void getAll() {
+    void getAll_shouldReturnStatusIsOk() {
         when(userService.getAll()).thenReturn(Collections.emptyList());
         mockMvc.perform(get("/users"))
                 .andExpect(status().isOk());
@@ -93,7 +105,7 @@ class UserControllerTest {
 
     @SneakyThrows
     @Test
-    void deleteById() {
+    void deleteById_shouldReturnStatusIsOk() {
         mockMvc.perform(delete("/users/{id}", 1L))
                 .andExpect(status().isOk());
 
