@@ -22,7 +22,7 @@ class BookingTest {
     }
 
     @Test
-    void testToString(){
+    void testToString() {
         Booking booking = Booking.builder().id(1L).booker(User.builder().id(2L).build()).status("status")
                 .start(LocalDateTime.parse("2023-12-08T15:43:12"))
                 .end(LocalDateTime.parse("2023-12-09T15:43:12"))
