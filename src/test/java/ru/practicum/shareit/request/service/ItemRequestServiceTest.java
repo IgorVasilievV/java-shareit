@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.exception.model.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.dto.ItemForRequestDto;
@@ -155,17 +156,17 @@ class ItemRequestServiceTest {
                 .id(1L)
                 .items(Collections.EMPTY_LIST)
                 .build());
-        when(itemRequestStorage.findAllByRequesterIdNotOrderByCreatedDesc(anyLong()))
-                .thenReturn(List.of(ItemRequest.builder()
+        when(itemRequestStorage.findAllByRequesterIdNotOrderByCreatedDesc(anyLong(), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(ItemRequest.builder()
                         .id(1L)
-                        .build()));
+                        .build())));
         when(itemDbStorage.findAllByRequestId(anyLong())).thenReturn(Collections.EMPTY_LIST);
 
         List<ItemRequestDtoOut> actualItemRequestDtoOutList = itemRequestService
                 .findAllItemRequest(1L, null, null);
 
         assertEquals(expectedItemRequestDtoOutList, actualItemRequestDtoOutList);
-        verify(itemRequestStorage).findAllByRequesterIdNotOrderByCreatedDesc(anyLong());
+        verify(itemRequestStorage).findAllByRequesterIdNotOrderByCreatedDesc(anyLong(), any(Pageable.class));
     }
 
     @SneakyThrows
@@ -175,7 +176,7 @@ class ItemRequestServiceTest {
                 .id(1L)
                 .items(Collections.EMPTY_LIST)
                 .build());
-        when(itemRequestStorage.findAllByRequesterIdNot(anyLong(), any(PageRequest.class)))
+        when(itemRequestStorage.findAllByRequesterIdNotOrderByCreatedDesc(anyLong(), any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(List.of(ItemRequest.builder()
                         .id(1L)
                         .build())));
@@ -185,7 +186,7 @@ class ItemRequestServiceTest {
                 .findAllItemRequest(1L, 0, 2);
 
         assertEquals(expectedItemRequestDtoOutList, actualItemRequestDtoOutList);
-        verify(itemRequestStorage).findAllByRequesterIdNot(anyLong(), any(PageRequest.class));
+        verify(itemRequestStorage).findAllByRequesterIdNotOrderByCreatedDesc(anyLong(), any(PageRequest.class));
     }
 
     @SneakyThrows
@@ -197,8 +198,7 @@ class ItemRequestServiceTest {
         assertThrows(ValidationException.class, () -> itemRequestService
                 .findAllItemRequest(1L, 0, 2));
 
-        verify(itemRequestStorage, never()).findAllByRequesterIdNotOrderByCreatedDesc(anyLong());
-        verify(itemRequestStorage, never()).findAllByRequesterIdNot(anyLong(), any(PageRequest.class));
+        verify(itemRequestStorage, never()).findAllByRequesterIdNotOrderByCreatedDesc(anyLong(), any(PageRequest.class));
     }
 
     @SneakyThrows
@@ -210,7 +210,7 @@ class ItemRequestServiceTest {
         assertThrows(ValidationException.class, () -> itemRequestService
                 .findAllItemRequest(1L, 2, 0));
 
-        verify(itemRequestStorage, never()).findAllByRequesterIdNotOrderByCreatedDesc(anyLong());
-        verify(itemRequestStorage, never()).findAllByRequesterIdNot(anyLong(), any(PageRequest.class));
+        verify(itemRequestStorage, never()).findAllByRequesterIdNotOrderByCreatedDesc(anyLong(), any(PageRequest.class));
+        verify(itemRequestStorage, never()).findAllByRequesterIdNotOrderByCreatedDesc(anyLong(), any(PageRequest.class));
     }
 }

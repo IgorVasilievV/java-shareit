@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.dto.BookingForItemDto;
 import ru.practicum.shareit.booking.storage.BookingStorage;
@@ -295,7 +296,7 @@ class ItemServiceTest {
     @Test
     void getItemsBySearch_shouldReturnItemDtoList() {
         when(itemStorage.searchByText(anyString())).thenReturn(Collections.EMPTY_LIST);
-        when(itemStorage.findByIdIn(anyList())).thenReturn(Collections.EMPTY_LIST);
+        when(itemStorage.findByIdInOrderById(anyList(), any(Pageable.class))).thenReturn(Page.empty());
 
         List<ItemDto> itemDtoListActual = itemService.getItemsBySearch(1L, "text", null, null);
         assertEquals(Collections.EMPTY_LIST, itemDtoListActual);
@@ -305,7 +306,7 @@ class ItemServiceTest {
     @Test
     void getItemsBySearch_shouldReturnItemDtoPage() {
         when(itemStorage.searchByText(anyString())).thenReturn(Collections.EMPTY_LIST);
-        when(itemStorage.findByIdIn(anyList(), any(PageRequest.class))).thenReturn(Page.empty());
+        when(itemStorage.findByIdInOrderById(anyList(), any(PageRequest.class))).thenReturn(Page.empty());
 
         List<ItemDto> itemDtoListActual = itemService.getItemsBySearch(1L, "text", 0, 2);
         assertEquals(Collections.EMPTY_LIST, itemDtoListActual);

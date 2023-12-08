@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -163,22 +165,18 @@ public class ItemServiceDbImpl implements ItemService {
         } else {
             validationItemService.validateSearchByUser(renterId);
             log.info("Found items contains text = {} and available", text);
+            Pageable pageable;
             if (from == null || size == null) {
-                List<Long> ids = itemStorage.searchByText(text);
-                List<Item> items = itemStorage.findByIdIn(ids);
-                return items.stream()
-                        .map(ItemMapper::toItemDto)
-                        .collect(Collectors.toList());
+                pageable = Pageable.unpaged();
             } else {
                 validationItemRequestService.validatePagination(from, size);
-                Sort sort = Sort.by(("id")).ascending();
-                PageRequest pageRequest = PageRequest.of(from / size, size, sort);
-                List<Long> ids = itemStorage.searchByText(text);
-                Page<Item> items = itemStorage.findByIdIn(ids, pageRequest);
-                return items.stream()
-                        .map(ItemMapper::toItemDto)
-                        .collect(Collectors.toList());
+                pageable = PageRequest.of(from / size, size);
             }
+            List<Long> ids = itemStorage.searchByText(text);
+            Page<Item> items = itemStorage.findByIdInOrderById(ids, pageable);
+            return items.getContent().stream()
+                    .map(ItemMapper::toItemDto)
+                    .collect(Collectors.toList());
         }
     }
 

@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.storage;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,9 +23,7 @@ public interface ItemDbStorage extends JpaRepository<Item, Long> {
             " or upper(i.description) like upper(concat('%', ?1, '%')))")
     List<Long> searchByText(String text);
 
-    List<Item> findByIdIn(List<Long> ids);
-
-    Page<Item> findByIdIn(List<Long> ids, PageRequest pageRequest);
+    Page<Item> findByIdInOrderById(List<Long> ids, Pageable pageRequest);
 
     List<Item> findAllByRequestId(Long id);
 

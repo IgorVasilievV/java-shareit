@@ -5,9 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.TestPropertySource;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserDbStorage;
 
@@ -58,18 +59,21 @@ class ItemRequestStorageTest {
     @Test
     @Rollback(value = false)
     void findAllByRequesterIdNotOrderByCreatedDesc() {
-        List<ru.practicum.shareit.request.model.ItemRequest> itemRequestsActual = itemRequestStorage.findAllByRequesterIdNotOrderByCreatedDesc(1L);
+        Pageable pageable = Pageable.unpaged();
 
-        assertEquals(2, itemRequestsActual.size());
-        assertEquals(3, itemRequestsActual.get(0).getId());
+        Page<ItemRequest> itemRequestsActual = itemRequestStorage
+                .findAllByRequesterIdNotOrderByCreatedDesc(1L, pageable);
+
+        assertEquals(2, itemRequestsActual.getContent().size());
+        assertEquals(3, itemRequestsActual.getContent().get(0).getId());
     }
 
     @Test
     @Rollback(value = false)
     void findAllByRequesterIdNot() {
-        Sort sort = Sort.by(("created")).descending();
-        PageRequest pageRequest = PageRequest.of(1, 1, sort);
-        Page<ru.practicum.shareit.request.model.ItemRequest> itemRequestsActual = itemRequestStorage.findAllByRequesterIdNot(1L, pageRequest);
+        PageRequest pageRequest = PageRequest.of(1, 1);
+        Page<ru.practicum.shareit.request.model.ItemRequest> itemRequestsActual = itemRequestStorage
+                .findAllByRequesterIdNotOrderByCreatedDesc(1L, pageRequest);
 
         assertEquals(1, itemRequestsActual.toList().size());
         assertEquals(2, itemRequestsActual.toList().get(0).getId());

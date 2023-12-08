@@ -3,7 +3,7 @@ package ru.practicum.shareit.request.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.item.model.Item;
@@ -64,20 +64,18 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public List<ItemRequestDtoOut> findAllItemRequest(Long ownerId, Integer from, Integer size) {
         validationItemRequestService.validateBeforeCreate(ownerId);
+        Pageable pageable;
         if (from == null || size == null) {
-            List<ItemRequest> itemRequests = itemRequestStorage.findAllByRequesterIdNotOrderByCreatedDesc(ownerId);
-            return itemRequests.stream()
-                    .map(i -> ItemRequestMapper.toItemRequestDtoOut(i, findItems(i.getId())))
-                    .collect(Collectors.toList());
+            pageable = Pageable.unpaged();
         } else {
             validationItemRequestService.validatePagination(from, size);
-            Sort sort = Sort.by(("created")).descending();
-            PageRequest pageRequest = PageRequest.of(from / size, size, sort);
-            Page<ItemRequest> itemRequestsPage = itemRequestStorage.findAllByRequesterIdNot(ownerId, pageRequest);
-            return itemRequestsPage.stream()
-                    .map(i -> ItemRequestMapper.toItemRequestDtoOut(i, findItems(i.getId())))
-                    .collect(Collectors.toList());
+            pageable = PageRequest.of(from / size, size);
         }
+        Page<ItemRequest> itemRequests = itemRequestStorage
+                .findAllByRequesterIdNotOrderByCreatedDesc(ownerId, pageable);
+        return itemRequests.getContent().stream()
+                .map(i -> ItemRequestMapper.toItemRequestDtoOut(i, findItems(i.getId())))
+                .collect(Collectors.toList());
     }
 
     private List<ItemForRequestDto> findItems(Long requestId) {
