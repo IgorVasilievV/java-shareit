@@ -14,11 +14,9 @@ public interface ItemService {
 
     ItemWithBookingDto getById(Long id, Long userId);
 
-    List<ItemWithBookingDto> getItemsByUser(Long ownerId);
+    List<ItemWithBookingDto> getItemsByUser(Long ownerId, Integer from, Integer size);
 
-    List<ItemDto> getItemsBySearch(Long renterId, String text);
-
-    void deleteById(Long id);
+    List<ItemDto> getItemsBySearch(Long renterId, String text, Integer from, Integer size);
 
     CommentDtoOut createComment(Long userId, Long itemId, CommentDtoIn commentDtoIn);
 }
