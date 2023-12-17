@@ -18,11 +18,14 @@ public interface ItemDbStorage extends JpaRepository<Item, Long> {
     @EntityGraph(attributePaths = {"owner"})
     Optional<Item> findById(Long itemId);
 
-    @Query(value = "select i.id from items as i where " +
+    /*@Query(value = "select i.id from items as i where " +
             "i.is_available = true and" +
             "(upper(i.name COLLATE \"en_US\") like upper(concat('%', ?1, '%') COLLATE \"en_US\") or " +
             "upper(i.description COLLATE \"en_US\") like upper(concat('%', ?1, '%') COLLATE \"en_US\"))",
-            nativeQuery = true)
+            nativeQuery = true)*/
+    @Query(" select i.id from Item i " +
+            "where i.available = true and (upper(i.name) like upper(concat('%', ?1, '%')) " +
+            " or upper(i.description) like upper(concat('%', ?1, '%')))")
     List<Long> searchByText(String text);
 
     Page<Item> findByIdInOrderById(List<Long> ids, Pageable pageRequest);
