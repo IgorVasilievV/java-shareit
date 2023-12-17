@@ -9,7 +9,6 @@ import ru.practicum.shareit.item.model.dto.ItemDto;
 import ru.practicum.shareit.item.model.dto.ItemWithBookingDto;
 import ru.practicum.shareit.item.service.ItemService;
 
-import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -33,7 +32,7 @@ public class ItemController {
 
     @PostMapping
     public ItemDto create(@RequestHeader(value = "X-Sharer-User-Id", defaultValue = "-1L") Long ownerId,
-                          @Valid @RequestBody ItemDto itemDto) {
+                          @RequestBody ItemDto itemDto) {
         return itemService.create(ownerId, itemDto);
     }
 
@@ -65,7 +64,7 @@ public class ItemController {
     public CommentDtoOut createComment(
             @RequestHeader(value = "X-Sharer-User-Id", defaultValue = "-1L") Long userId,
             @PathVariable Long itemId,
-            @Valid @RequestBody CommentDtoIn commentDtoIn) {
+            @RequestBody CommentDtoIn commentDtoIn) {
         return itemService.createComment(userId, itemId, commentDtoIn);
     }
 }

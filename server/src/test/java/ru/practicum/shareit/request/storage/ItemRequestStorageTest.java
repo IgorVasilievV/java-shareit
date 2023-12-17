@@ -31,8 +31,8 @@ class ItemRequestStorageTest {
     @BeforeEach
     void addRequest() {
         if (userStorage.findAll().isEmpty() || itemRequestStorage.findAll().isEmpty()) {
-            User user = User.builder().id(1L).build();
-            User user1 = User.builder().id(2L).build();
+            User user = User.builder().id(1L).email("email@email.ru").build();
+            User user1 = User.builder().id(2L).email("email1@email.ru").build();
 
             User userDb = userStorage.save(user);
             User userDb1 = userStorage.save(user1);
@@ -50,7 +50,7 @@ class ItemRequestStorageTest {
     @Test
     @Rollback(value = false)
     void findAllByRequesterId() {
-        List<ru.practicum.shareit.request.model.ItemRequest> itemRequestsActual = itemRequestStorage.findAllByRequesterId(1L);
+        List<ItemRequest> itemRequestsActual = itemRequestStorage.findAllByRequesterId(1L);
 
         assertEquals(1, itemRequestsActual.size());
         assertEquals(1, itemRequestsActual.get(0).getRequester().getId());
