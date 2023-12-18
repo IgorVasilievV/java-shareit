@@ -21,8 +21,8 @@ services:
       - postgres
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/shareit
-      - SPRING_DATASOURCE_USERNAME=shareiter
-      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_USERNAME=${DB_USER_NAME-shareiter}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD-root}
 
 
   postgres:
@@ -32,6 +32,6 @@ services:
       - "6541:5432"
     environment:
       - POSTGRES_DB=shareit
-      - POSTGRES_USER=shareiter
-      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=${DB_USER_NAME-shareiter}
+      - POSTGRES_PASSWORD=${DB_PASSWORD-root}
 
